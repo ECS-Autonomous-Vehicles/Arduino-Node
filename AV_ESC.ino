@@ -17,7 +17,7 @@
 ros::NodeHandle nh;
 
 Servo servo;
-// Servo motor;
+Servo motor;
 
 // Encoder output to Arduino Interrupt pin. Tracks the tick count.
 #define ENC_IN_LEFT_A PA0   // Hijau
@@ -40,7 +40,7 @@ boolean Direction_right = true;
 const int encoder_minimum = -32768;
 const int encoder_maximum = 32767;
 
-int angle = 30;
+int angle = 90;
 
 // Keep track of the number of wheel ticks
 std_msgs::Int16 right_wheel_tick_count;
@@ -119,12 +119,8 @@ void steering(const geometry_msgs::Twist& cmd_msg) {
 
   angleCount.data = angle;
 
-  // motor.writeMicroseconds(gas);  // constant speed (1480: 2m/s, 1450: 0.5m/s, 1500: stop)
+  motor.writeMicroseconds(gas);  // constant speed (1480: 2m/s, 1450: 0.5m/s, 1500: stop)
   servo.write(angle);            //set servo angle, should be from 0-180
-  // for (int pos = 0; pos <= 180; pos += 1) {
-  //   servo.write(pos);
-  //   delay(15);
-  // }
 }
 
 
@@ -138,8 +134,8 @@ void setup() {
   pinMode(ENC_IN_RIGHT_A, INPUT);
   pinMode(ENC_IN_RIGHT_B, INPUT);
 
-  // motor.attach(MOTOR, 1000, 2000);
-  servo.attach(PB6, 1000, 2000);  //attach it to pin 9//UP DOWN
+  motor.attach(MOTOR, 1000, 2000);
+  servo.attach(PB6);  //attach it to pin 9//UP DOWN
 
   // Every time the pin goes high, this is a tick
   attachInterrupt(digitalPinToInterrupt(ENC_IN_LEFT_A), left_wheel_tick, RISING);
@@ -148,12 +144,12 @@ void setup() {
 
 
   // ROS Setup
-  // nh.getHardware()->setBaud(57600);
-  // nh.initNode();
-  // nh.subscribe(sub);
-  // nh.advertise(rightPub);
-  // nh.advertise(leftPub);
-  // nh.advertise(anglePub);
+  nh.getHardware()->setBaud(57600);
+  nh.initNode();
+  nh.subscribe(sub);
+  nh.advertise(rightPub);
+  nh.advertise(leftPub);
+  nh.advertise(anglePub);
 }
 
 void loop() {
@@ -166,23 +162,11 @@ void loop() {
 
     previousMillis = currentMillis;
 
-    // angleCount.data = angle;
-    Serial.print("KANAN: ");
-    Serial.println(right_wheel_tick_count.data);
-
-    Serial.print("KIRI: ");
-    Serial.println(left_wheel_tick_count.data);
-    // Serial.println(left_wheel_tick_count.data);
-
-    // servo.writeMicroseconds(1200);
-    // delay(20);
-
-    // rightPub.publish( &right_wheel_tick_count );
-    // leftPub.publish( &left_wheel_tick_count );
-    // anglePub.publish( &angleCount);
-    // nh.spinOnce();
+    rightPub.publish( &right_wheel_tick_count );
+    leftPub.publish( &left_wheel_tick_count );
+    anglePub.publish( &angleCount);
+    nh.spinOnce();
   }
 
-  servo.writeMicroseconds(1200);
   delay(1000);
 }
