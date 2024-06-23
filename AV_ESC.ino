@@ -20,13 +20,13 @@ Servo servo;
 Servo motor;
 
 // Encoder output to Arduino Interrupt pin. Tracks the tick count.
-#define ENC_IN_LEFT_A PA0   // Hijau
-#define ENC_IN_RIGHT_A PA1  // Hijau
+#define ENC_IN_LEFT_A PB13   // Hijau
+#define ENC_IN_RIGHT_A PB14  // Hijau
 
 // Other encoder output to Arduino to keep track of wheel direction
 // Tracks the direction of rotation.
-#define ENC_IN_LEFT_B PB13   // Kuning
-#define ENC_IN_RIGHT_B PB14  // Kuning
+#define ENC_IN_LEFT_B PA0   // Kuning
+#define ENC_IN_RIGHT_B PA1  // Kuning
 
 
 #define MOTOR PB5
@@ -129,9 +129,9 @@ ros::Subscriber<geometry_msgs::Twist> sub("car/cmd_vel", steering);
 void setup() {
 
   // Set pin states of the encoder
-  pinMode(ENC_IN_LEFT_A, INPUT);
+  pinMode(ENC_IN_LEFT_A, INPUT_PULLUP);
   pinMode(ENC_IN_LEFT_B, INPUT);
-  pinMode(ENC_IN_RIGHT_A, INPUT);
+  pinMode(ENC_IN_RIGHT_A, INPUT_PULLUP);
   pinMode(ENC_IN_RIGHT_B, INPUT);
 
   motor.attach(MOTOR, 1000, 2000);
@@ -167,6 +167,4 @@ void loop() {
     anglePub.publish( &angleCount);
     nh.spinOnce();
   }
-
-  delay(1000);
 }
